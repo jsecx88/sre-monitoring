@@ -1,0 +1,49 @@
+# ──────────────────────────────────────────────
+# SRE Monitor — Configuration
+# ──────────────────────────────────────────────
+
+# Which notification provider to use: "discord" or "signal"
+notification: "discord"
+
+# ── Discord (used when notification: "discord") ──
+# Create a webhook at: Server Settings → Integrations → Webhooks
+discord_webhook: "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN"
+
+# ── Signal via CallMeBot (used when notification: "signal") ──
+# Setup steps:
+#   1. Open Signal and message +34 603 21 25 62
+#   2. Send exactly: I allow callmebot to send me messages
+#   3. CallMeBot will reply with your API key — paste it below
+signal_phone:  "+12025550100"   # your number in international format
+signal_apikey: "YOUR_CALLMEBOT_APIKEY"
+
+# ──────────────────────────────────────────────
+
+# How many seconds between each round of checks
+check_interval_seconds: 60
+
+# Which disk mount point to watch
+disk_path: "/"
+
+# Percentage thresholds — alerts (and remediation) fire when usage hits these
+thresholds:
+  cpu_percent: 85
+  memory_percent: 85
+  disk_percent: 80
+
+# Services to monitor (process names — must match exactly what shows in `ps aux`)
+services:
+  - jellyfin
+  - nextcloud   # or whatever process name your nextcloud setup uses (e.g. php-fpm, apache2)
+  - nginx
+
+# Log files to tail and patterns to look for (regex supported)
+log_checks:
+  - file: "/var/log/syslog"
+    pattern: "Out of memory"
+
+  - file: "/var/log/nginx/error.log"
+    pattern: "error|crit|alert|emerg"
+
+  - file: "/var/log/auth.log"
+    pattern: "Failed password|authentication failure"

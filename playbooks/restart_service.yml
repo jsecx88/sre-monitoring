@@ -1,0 +1,15 @@
+---
+# restart_service.yml
+# Called automatically by monitor.py when a watched service is no longer running.
+# Pass the service name via --extra-vars "service_name=nginx"
+
+- name: Restart a downed service
+  hosts: localhost
+  become: yes       # needs sudo to control systemd units
+
+  tasks:
+    - name: Restart {{ service_name }} via systemd
+      systemd:
+        name: "{{ service_name }}"
+        state: restarted
+        enabled: yes        # make sure it comes back on reboot too

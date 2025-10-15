@@ -1,0 +1,29 @@
+---
+# rotate_logs.yml
+# Called automatically by monitor.py when disk usage crosses the configured threshold.
+# Runs logrotate and cleans up old systemd journal entries to free space.
+
+- name: Rotate logs and reclaim disk space
+  hosts: localhost
+  become: yes       # needs sudo to write to /var/log and manage journal
+
+  tasks:
+    - name: Force logrotate to run on all configs
+      command: logrotate -f /etc/logrotate.conf
+
+    - name: Remove systemd journal entries older than 7 days
+      command: journalctl --vacuum-time=7d
+
+    - name: Remove old compressed log files (*.gz older than 14 days)
+      find:
+        paths: /var/log
+        patterns: "*.gz"
+        age: "14d"
+        recurse: yes
+      register: old_logs
+
+    - name: Delete the old compressed logs found above
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ old_logs.files }}"
